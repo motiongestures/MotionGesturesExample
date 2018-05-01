@@ -1,0 +1,95 @@
+syntax = "proto3";
+package GREProtocol;
+//
+// Recognition flow:
+// 1) Start listening for acceleration, gyroscope and magnetometer data from the sensors
+// 2) Create an ID for the session (UUID is recommended)
+// 3) Store each x,y,z values into an SensorSample object
+// 4) Store each SensorSample object into a list, appropriate for its type
+// 5) Whenever you decide to send the data to the server for analysis construct the Acceleration, Gyroscope and Magnetometer objects
+//    and pass to them the list of collected SensorSamples (Acceleration gets the acceleration samples, etc.)
+// 6) Create a RecognitionRequest object and set its acceleration, gyroscope and magnetometer properties and send it to the server
+// 7) Read the response of the server into the RecognitionResponse object
+// 8) If the status of the response equals 'GestureEnd' then gestures have been recognized 
+// 9) The labels property will hold the recognized gesture's labels. The type property will specify the type of the gesture (Motion or Rotational)
+
+message RecognitionRequest {
+     string id = 1; //the ID of this recognition session. You can use the same ID for one or more recognitions
+     Acceleration acceleration = 2; // acceleration data
+     Gyroscope gyroscope = 3; // gyroscope data
+     Magnetometer magnetometer = 4; // magnetometer data
+     uint32 sensitivity = 5; //the sensitivity of the recognition. 0 is high sensitivity, over 250 is very low sensitivity
+     bool activeGesture = 7; //set this to true if the data sent is part of an ongoing gestures. Set to false if is cached data.
+     reserved 6;
+     reserved "endOfGesture";
+}
+
+message Acceleration {
+    repeated SensorSample samples = 1; //the set of collected acceleration data which are sent to the server for analysis
+    AccelerationUnit unit = 5; //The unit the values are expressed in
+}
+
+message Gyroscope {
+  repeated SensorSample samples = 1; //the set of collected gyroscope data which are sent to the server for analysis
+  GyroscopeUnit unit = 2;
+}
+
+message Magnetometer {
+  repeated SensorSample samples = 1;
+}
+
+message SensorSample {
+   float x = 1; //the X value
+   float y = 2; //the Y value   
+   float z = 3; //the Z value
+   int32 index = 4; //the index of this sample for the entire session. 
+}
+
+enum AccelerationUnit {
+ SI = 0; //The values are expressed in m/s^2
+ G = 1; //The values are expressed in multiples of G
+}
+
+enum GyroscopeUnit {
+ RADS = 0; // radians per second
+ DEGREES = 1; // degrees per second
+}
+
+enum Status {
+ NoGesture = 0;
+ GestureStart = 1; //the recognition engine detected the start of a gesture
+ GestureEnd = 2;  // the recognition engine detected the end of a gesture
+ GestureTooShort = 3;
+ GestureTooLong = 4;
+}
+
+message Angle {
+ float x = 1;
+ float y = 2;
+ float z = 3;
+ AngleUnit unit = 4;
+}
+
+enum AngleUnit {
+ RAD = 0;
+ DEGREE = 1;
+}
+enum GestureType {
+ NONE = 0;
+ MOTION = 1;
+ ROTATIONAL = 2;
+}
+
+message RecognitionResponse {
+        float confidence = 1; //the confidence in the result. Only valid when status is GestureEnd. Probability is obtained by: probability = e^confidence (where e is Euler's number)
+        repeated int32 labels = 7; //the labels (identifiers) of the recognized gestures.
+        int32 length = 3; //the number of samples the gesture is comprised of. Only valid when status is GestureEnd
+        Status status = 4; //the status of the recognition
+        repeated string names = 8; //the names of the recognized gestures, if any.        
+        GestureType gestureType = 6; //the type of the recognized gestures
+	reserved 2, 5;
+	reserved "name","label";
+}
+
+
+

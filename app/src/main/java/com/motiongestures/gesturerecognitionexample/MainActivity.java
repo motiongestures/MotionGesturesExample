@@ -1,6 +1,7 @@
 package com.motiongestures.gesturerecognitionexample;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -68,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         gesturesListAdapter = new ArrayAdapter<>(this,R.layout.gesture_item);
         recognizedGesturesList = findViewById(R.id.recognizedGesturesList);
         recognizedGesturesList.setAdapter(gesturesListAdapter);
@@ -106,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void connect() {
         index = 0;
         try {
-            webSocket = new WebSocketFactory().createSocket("ws://192.168.0.11:8080/recognition?api_key=cobXpH4pSKUtbA4lbr9r1oWgBO6DLrhGrONaSklqcCGOTp9J3Y");
+            webSocket = new WebSocketFactory().createSocket("wss://sdk.motiongestures.com/recognition?api_key=cobXpH4pSKUtbA4lbr9r1oWgBO6DLrhGrONaSklqcCGOTp9J3Y");
             webSocket.addListener(socketAdapter);
             currentSessionId = UUID.randomUUID().toString();
             webSocket.connectAsynchronously();
