@@ -19,7 +19,9 @@ import android.widget.ToggleButton;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
+import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketFactory;
+import com.neovisionaries.ws.client.WebSocketFrame;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void connect() {
         index = 0;
         try {
-            webSocket = new WebSocketFactory().createSocket("wss://sdk.motiongestures.com/recognition?api_key=cobXpH4pSKUtbA4lbr9r1oWgBO6DLrhGrONaSklqcCGOTp9J3Y");
+            webSocket = new WebSocketFactory().createSocket("wss://sdk.motiongestures.com/recognition?api_key=<replace key>");
             webSocket.addListener(socketAdapter);
             currentSessionId = UUID.randomUUID().toString();
             webSocket.connectAsynchronously();
@@ -274,6 +276,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             activeGesture = false;
             sendSamples(accelerationSamplesCache,gyroscopeSamplesCache,magnetometerSamplesCache);
             activeGesture = true;
+        }
+
+        @Override
+        public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
+            super.onError(websocket, cause);
+            Log.e(TAG,"Received an error communicating with the server:",cause);
+        }
+
+        @Override
+        public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
+            super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
+            int code = closedByServer?serverCloseFrame.getCloseCode():clientCloseFrame.getCloseCode();
+            Log.e(TAG,"Disconnected from server with code "+code);
         }
     }
 
