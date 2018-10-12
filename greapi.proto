@@ -20,8 +20,20 @@ message RecognitionRequest {
      Magnetometer magnetometer = 4; // magnetometer data
      uint32 sensitivity = 5; //the sensitivity of the recognition. 0 is high sensitivity, over 250 is very low sensitivity
      bool activeGesture = 7; //set this to true if the data sent is part of an ongoing gestures. Set to false if is cached data.
+     RequestType requestType = 8;//Set this to Motion if this is a motion gesture test (and have acceleration,gyroscope and magnetometer set), 
+                                // Set this to Touch if this is a touch gesture test (and have touch set)
+     Touch touch = 9;
      reserved 6;
      reserved "endOfGesture";
+}
+
+message Touch {
+    repeated Point points = 1; //the set of collected touch data which are sent to the server for analysis
+}
+
+message Point {
+   float x = 1; //the X value
+   float y = 2; //the Y value
 }
 
 message Acceleration {
@@ -36,6 +48,11 @@ message Gyroscope {
 
 message Magnetometer {
   repeated SensorSample samples = 1;
+}
+
+enum RequestType {
+ MotionRequest = 0;
+ TouchRequest = 1;
 }
 
 message SensorSample {
@@ -61,6 +78,7 @@ enum Status {
  GestureEnd = 2;  // the recognition engine detected the end of a gesture
  GestureTooShort = 3;
  GestureTooLong = 4;
+ GestureRejected = 5;//the recognition engine rejected the recognized gesture
 }
 
 message Angle {
@@ -78,6 +96,7 @@ enum GestureType {
  NONE = 0;
  MOTION = 1;
  ROTATIONAL = 2;
+ TOUCH = 3;
 }
 
 message RecognitionResponse {

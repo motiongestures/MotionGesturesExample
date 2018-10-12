@@ -263,6 +263,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             toggleButton.setChecked(false);
                         }
                     });
+                } else if(recognitionResponse.getStatus() == Greapi.Status.GestureRejected) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            int size = Math.min(recognitionResponse.getNamesCount(),recognitionResponse.getLabelsCount());
+                            for(int i = 0;i<size;i++) {
+                                gesturesListAdapter.add("Rejected gesture " + recognitionResponse.getNames(i) + " with label " + recognitionResponse.getLabels(i));
+                            }
+                            toggleButton.setChecked(false);
+                        }
+                    });
                 } else {
                     Log.d(TAG,"Received recognition response with status "+recognitionResponse.getStatus());
                 }
