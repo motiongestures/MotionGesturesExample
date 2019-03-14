@@ -1,1 +1,1 @@
-include ':app', ':wearosgesturesexample'
+include ':app', ':wearosgesturesexample', ':grelib'
