@@ -17,11 +17,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import GREProtocol.Greapi;
 
@@ -35,15 +37,18 @@ public class GestureRecognitionClient implements SensorEventListener {
     private static final int ACCELEROMETER_TYPE = Sensor.TYPE_ACCELEROMETER;
     private static final int GYROSCOPE_TYPE = Sensor.TYPE_GYROSCOPE_UNCALIBRATED;
     private static final int MAGNETOMETER_TYPE = Sensor.TYPE_MAGNETIC_FIELD;
+    private static final int GYROSCOPE_TYPE_ALT = Sensor.TYPE_GYROSCOPE;
+    private static final int MAGNETOMETER_TYPE_ALT = Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED;
+
     private int maxSampleCachesize = 30;
-    private Deque<Greapi.SensorSample> accelerationSamplesCache = new LinkedList<>();
-    private Deque<Greapi.SensorSample> gyroscopeSamplesCache = new LinkedList<>();
-    private Deque<Greapi.SensorSample> magnetometerSamplesCache = new LinkedList<>();
+    private Deque<Greapi.SensorSample> accelerationSamplesCache = new ConcurrentLinkedDeque<>();
+    private Deque<Greapi.SensorSample> gyroscopeSamplesCache = new ConcurrentLinkedDeque<>();
+    private Deque<Greapi.SensorSample> magnetometerSamplesCache = new ConcurrentLinkedDeque<>();
     private boolean activeGesture = false;
 
-    private List<Greapi.SensorSample> accelerationList = new ArrayList<>();
-    private List<Greapi.SensorSample> gyroscopeList  = new ArrayList<>();
-    private List<Greapi.SensorSample> magnetometerList  = new ArrayList<>();
+    private Collection<Greapi.SensorSample> accelerationList = new ConcurrentLinkedDeque<>();
+    private Collection<Greapi.SensorSample> gyroscopeList  = new ConcurrentLinkedDeque<>();
+    private Collection<Greapi.SensorSample> magnetometerList  = new ConcurrentLinkedDeque<>();
     private int index = 0;
     private WebSocket webSocket;
     private String currentSessionId = null;
@@ -54,7 +59,22 @@ public class GestureRecognitionClient implements SensorEventListener {
         sensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(ACCELEROMETER_TYPE);
         gyroscope = sensorManager.getDefaultSensor(GYROSCOPE_TYPE);
+        if(gyroscope == null) {
+            Log.d(TAG,"Trying alt gyroscope: ");
+            gyroscope = sensorManager.getDefaultSensor(GYROSCOPE_TYPE_ALT);
+            if(gyroscope == null) {
+                Log.e(TAG,"Cannot find gyroscope");
+            }
+        }
+
         magnetometer = sensorManager.getDefaultSensor(MAGNETOMETER_TYPE);
+        if(magnetometer == null) {
+            Log.d(TAG,"Trying alt magnetometer: ");
+            magnetometer = sensorManager.getDefaultSensor(MAGNETOMETER_TYPE_ALT);
+            if(magnetometer == null) {
+                Log.e(TAG,"Cannot find magnetometer");
+            }
+        }
     }
 
     public void pause() {
