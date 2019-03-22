@@ -107,6 +107,9 @@ public class GestureRecognitionClient implements SensorEventListener {
     public void connect(String uri) {
         index = 0;
         try {
+            accelerationList.clear();
+            gyroscopeList.clear();
+            magnetometerList.clear();
             webSocket = new WebSocketFactory().createSocket(uri);
             webSocket.addListener(socketAdapter);
             currentSessionId = UUID.randomUUID().toString();
@@ -131,12 +134,14 @@ public class GestureRecognitionClient implements SensorEventListener {
                 addSampleToCache(accelerationSamplesCache,sample);
                 break;
             case GYROSCOPE_TYPE:
+            case GYROSCOPE_TYPE_ALT:
                 if(activeGesture) {
                     gyroscopeList.add(sample);
                 }
                 addSampleToCache(gyroscopeSamplesCache,sample);
                 break;
             case MAGNETOMETER_TYPE:
+            case MAGNETOMETER_TYPE_ALT:
                 if(activeGesture) {
                     magnetometerList.add(sample);
                 }
