@@ -10,7 +10,9 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.motiongestures.grelib.ClientReferenceMode;
 import com.motiongestures.grelib.GestureRecognitionClient;
+import com.motiongestures.grelib.RemoteGestureRecognitionClient;
 import com.motiongestures.grelib.GestureRecognitionResponseListener;
 import java.util.List;
 
@@ -28,7 +30,8 @@ public class WearMainActivity extends WearableActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wear_main);
-        gestureRecognitionClient = new GestureRecognitionClient(this);
+        gestureRecognitionClient = new RemoteGestureRecognitionClient(this);
+        gestureRecognitionClient.setReferenceMode(ClientReferenceMode.LEFT_WRIST);//change this to whatever wrist the watch is on
         mTextView = (TextView) findViewById(R.id.text);
         toggleButton = findViewById(R.id.test_toggle);
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -36,7 +39,7 @@ public class WearMainActivity extends WearableActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if(checked) {
                     //start
-                    gestureRecognitionClient.connect("wss://sdk.motiongestures.com/recognition?api_key=<project key here>");
+                    gestureRecognitionClient.connect("wss://sdk.motiongestures.com/recognition?api_key=<project's API key>");
                 } else {
                     //stop
                     gestureRecognitionClient.disconnect();

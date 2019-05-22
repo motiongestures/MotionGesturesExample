@@ -23,6 +23,8 @@ message RecognitionRequest {
      RequestType requestType = 8;//Set this to Motion if this is a motion gesture test (and have acceleration,gyroscope and magnetometer set), 
                                 // Set this to Touch if this is a touch gesture test (and have touch set)
      Touch touch = 9;
+     ReferenceMode referenceMode = 10; //The reference mode of the recognition. It affects how the motion samples axes are interpreted. 
+                                        //If unsure choose NO_REFERENCE, but we strongly recommend reading the documentation.
      reserved 6;
      reserved "endOfGesture";
 }
@@ -79,6 +81,7 @@ enum Status {
  GestureTooShort = 3;
  GestureTooLong = 4;
  GestureRejected = 5;//the recognition engine rejected the recognized gesture
+ IdleStatus = 6;
 }
 
 message Angle {
@@ -97,6 +100,12 @@ enum GestureType {
  MOTION = 1;
  ROTATIONAL = 2;
  TOUCH = 3;
+}
+enum ReferenceMode {
+    DEVICE_REFERENCE = 0;
+    USER_FACING = 1;
+    RIGHT_WRIST = 2;
+    LEFT_WRIST = 3;
 }
 
 message RecognitionResponse {

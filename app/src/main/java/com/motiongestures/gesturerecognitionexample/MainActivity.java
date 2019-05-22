@@ -12,7 +12,9 @@ import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.ToggleButton;
 
+import com.motiongestures.grelib.ClientReferenceMode;
 import com.motiongestures.grelib.GestureRecognitionClient;
+import com.motiongestures.grelib.RemoteGestureRecognitionClient;
 import com.motiongestures.grelib.GestureRecognitionResponseListener;
 
 import java.util.List;
@@ -36,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        gestureRecognitionClient = new GestureRecognitionClient(this);
+        gestureRecognitionClient = new RemoteGestureRecognitionClient(this);
+        gestureRecognitionClient.setReferenceMode(ClientReferenceMode.DEVICE_REFERENCE);//change this to USER_FACING if needed.
         gesturesListAdapter = new ArrayAdapter<>(this,R.layout.gesture_item);
         recognizedGesturesList = findViewById(R.id.recognizedGesturesList);
         recognizedGesturesList.setAdapter(gesturesListAdapter);
@@ -46,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if(checked) {
                     //start
-                    gestureRecognitionClient.connect("wss://sdk.motiongestures.com/recognition?api_key=<project key here>");
+                    gestureRecognitionClient.connect("wss://sdk.motiongestures.com/recognition?api_key=<project's API key>");
                 } else {
                     //stop
                     gestureRecognitionClient.disconnect();
